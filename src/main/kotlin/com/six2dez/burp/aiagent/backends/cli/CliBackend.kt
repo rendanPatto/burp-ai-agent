@@ -478,6 +478,20 @@ class CliBackend(
             if (!args.contains("-p") && !args.contains("--prompt")) {
                 args.add("-p")
             }
+            val currentSessionId = _cliSessionId.get()
+            if (currentSessionId != null) {
+                args.add("--resume")
+                args.add(currentSessionId)
+            } else {
+                val newId = java.util.UUID.randomUUID().toString()
+                if (_cliSessionId.compareAndSet(null, newId)) {
+                    // iFlow uses --continue for new sessions with session tracking
+                    args.add("--continue")
+                } else {
+                    args.add("--resume")
+                    args.add(_cliSessionId.get()!!)
+                }
+            }
             return args
         }
 

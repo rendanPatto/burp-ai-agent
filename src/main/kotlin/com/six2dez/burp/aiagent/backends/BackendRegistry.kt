@@ -5,7 +5,7 @@ import com.six2dez.burp.aiagent.backends.cli.CodexCliBackendFactory
 import com.six2dez.burp.aiagent.backends.cli.GeminiCliBackendFactory
 import com.six2dez.burp.aiagent.backends.cli.OpenCodeCliBackendFactory
 import com.six2dez.burp.aiagent.backends.cli.ClaudeCliBackendFactory
-import com.six2dez.burp.aiagent.backends.cli.IFlowCliBackendFactory
+import com.six2dez.burp.aiagent.backends.cli.CopilotCliBackendFactory
 import com.six2dez.burp.aiagent.backends.cli.IFlowCliBackendFactory
 import com.six2dez.burp.aiagent.backends.http.HttpBackendSupport
 import com.six2dez.burp.aiagent.backends.lmstudio.LmStudioBackendFactory

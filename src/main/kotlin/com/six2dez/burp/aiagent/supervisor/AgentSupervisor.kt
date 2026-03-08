@@ -655,6 +655,20 @@ class AgentSupervisor(
                     cliSessionId = cliSessionId
                 )
             }
+            "iflow-cli" -> {
+                val cmd = (settings?.iflowCmd ?: prefs.getString("iflow.cmd") ?: "iflow").trim()
+                val iflowEnv = embeddedCliEnv(baseEnv, embeddedMode) + mapOf("IFLOW_coreTools" to "")
+                BackendLaunchConfig(
+                    backendId = backendId,
+                    displayName = "iFlow CLI",
+                    command = tokenizeCommand(cmd),
+                    embeddedMode = embeddedMode,
+                    sessionId = sessionId,
+                    determinismMode = determinism,
+                    env = iflowEnv,
+                    cliSessionId = cliSessionId
+                )
+            }
             else -> BackendLaunchConfig(backendId, backendId, embeddedMode = embeddedMode, env = baseEnv, cliSessionId = cliSessionId)
         }
     }

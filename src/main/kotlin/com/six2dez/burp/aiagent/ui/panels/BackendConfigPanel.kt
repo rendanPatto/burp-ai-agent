@@ -181,7 +181,8 @@ class BackendConfigPanel(
             openAiCompatApiKey = String(openAiCompatApiKey.password).trim(),
             openAiCompatHeaders = openAiCompatHeaders.text.trim(),
             openAiCompatTimeoutSeconds = openAiCompatTimeout.text.trim(),
-            copilotCmd = copilotCmd.text.trim()
+            copilotCmd = copilotCmd.text.trim(),
+            iflowCmd = iflowCmd.text.trim()
         )
     }
 
@@ -211,6 +212,7 @@ class BackendConfigPanel(
         openAiCompatHeaders.text = state.openAiCompatHeaders
         openAiCompatTimeout.text = state.openAiCompatTimeoutSeconds
         copilotCmd.text = state.copilotCmd
+        iflowCmd.text = state.iflowCmd
     }
 
     private fun buildSingleFieldPanel(labelText: String, field: JComponent): JPanel {
