@@ -477,17 +477,7 @@ class CliBackend(
 
             val currentSessionId = _cliSessionId.get()
             if (currentSessionId != null) {
-                args.add("--resume")
-                args.add(currentSessionId)
-            } else {
-                val newId = java.util.UUID.randomUUID().toString()
-                if (_cliSessionId.compareAndSet(null, newId)) {
-                    args.add("--session-id")
-                    args.add(newId)
-                } else {
-                    args.add("--resume")
-                    args.add(_cliSessionId.get()!!)
-                }
+                args.add("-c")
             }
 
             args.addAll(extras)
@@ -499,10 +489,26 @@ class CliBackend(
         }
 
         private fun readIFlowOutput(stdout: String, prompt: String): String {
+            val lines = stdout.lines()
+            val sessionIdPattern = Regex("""(?:session|conversation|session-id|session_id)[:\s]+([a-zA-Z0-9\-_/.]+)""", RegexOption.IGNORE_CASE)
+            for (line in lines) {
+                val match = sessionIdPattern.find(line)
+                if (match != null && _cliSessionId.get() == null) {
+                    val extractedId = match.groupValues[1].trim()
+                    if (extractedId.isNotBlank()) {
+                        _cliSessionId.compareAndSet(null, extractedId)
+                        break
+                    }
+                }
+            }
+            
             val inputLines = prompt.lines().map { it.trim() }.filter { it.isNotBlank() }.toSet()
-            return stdout.lineSequence()
+            return lines
                 .map { it.trim() }
                 .filter { it.isNotBlank() && !inputLines.contains(it) }
+                .filterNot { line ->
+                    sessionIdPattern.containsMatchIn(line)
+                }
                 .joinToString("\n")
                 .trim()
         }
