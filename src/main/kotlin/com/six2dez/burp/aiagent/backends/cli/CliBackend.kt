@@ -490,9 +490,23 @@ class CliBackend(
 
         private fun readIFlowOutput(stdout: String, prompt: String): String {
             val lines = stdout.lines()
-            val sessionIdPattern = Regex("""(?:session|conversation|session-id|session_id)[:\s]+([a-zA-Z0-9\-_/.]+)""", RegexOption.IGNORE_CASE)
+            
+            // Extract session ID from JSON format like: "session-id": "session-xxx"
+            val sessionIdPattern = Regex(""""session-id"\s*:\s*"([^"]+)"""", RegexOption.IGNORE_CASE)
+            val conversationIdPattern = Regex(""""conversation-id"\s*:\s*"([^"]+)"""", RegexOption.IGNORE_CASE)
+            
             for (line in lines) {
-                val match = sessionIdPattern.find(line)
+                // Try to extract session-id first
+                var match = sessionIdPattern.find(line)
+                if (match != null && _cliSessionId.get() == null) {
+                    val extractedId = match.groupValues[1].trim()
+                    if (extractedId.isNotBlank()) {
+                        _cliSessionId.compareAndSet(null, extractedId)
+                        break
+                    }
+                }
+                // Fallback to conversation-id if session-id not found
+                match = conversationIdPattern.find(line)
                 if (match != null && _cliSessionId.get() == null) {
                     val extractedId = match.groupValues[1].trim()
                     if (extractedId.isNotBlank()) {
@@ -503,11 +517,19 @@ class CliBackend(
             }
             
             val inputLines = prompt.lines().map { it.trim() }.filter { it.isNotBlank() }.toSet()
+            var inExecutionInfo = false
             return lines
                 .map { it.trim() }
-                .filter { it.isNotBlank() && !inputLines.contains(it) }
-                .filterNot { line ->
-                    sessionIdPattern.containsMatchIn(line)
+                .filter { line ->
+                    if (line.startsWith("<Execution Info>")) {
+                        inExecutionInfo = true
+                        return@filter false
+                    }
+                    if (line.startsWith("</Execution Info>")) {
+                        inExecutionInfo = false
+                        return@filter false
+                    }
+                    return@filter !inExecutionInfo && line.isNotBlank() && !inputLines.contains(line)
                 }
                 .joinToString("\n")
                 .trim()
