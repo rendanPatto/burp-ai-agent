@@ -531,6 +531,9 @@ class CliBackend(
                     }
                     return@filter !inExecutionInfo && line.isNotBlank() && !inputLines.contains(line)
                 }
+                .filterNot { line ->
+                    line.contains(Regex("""Resuming session\s+[\w-]+.*\d+\s+messages?\s+loaded""", RegexOption.IGNORE_CASE))
+                }
                 .joinToString("\n")
                 .trim()
         }
