@@ -274,8 +274,8 @@ class CliBackend(
                     cmd to prompt
                 }
                 "iflow-cli" -> {
-                    val cmd = buildIFlowCommand(baseCommand)
-                    cmd to prompt
+                    val cmd = buildIFlowCommand(baseCommand, prompt)
+                    cmd to null
                 }
                 else -> baseCommand to prompt
             }
@@ -469,7 +469,7 @@ class CliBackend(
                 .trim()
         }
 
-        private fun buildIFlowCommand(cmd: List<String>): List<String> {
+        private fun buildIFlowCommand(cmd: List<String>, prompt: String): List<String> {
             val base = cmd.firstOrNull() ?: "iflow"
             val extras = cmd.drop(1)
             val args = mutableListOf<String>()
@@ -482,7 +482,8 @@ class CliBackend(
             } else {
                 val newId = java.util.UUID.randomUUID().toString()
                 if (_cliSessionId.compareAndSet(null, newId)) {
-                    args.add("-c")
+                    args.add("--session-id")
+                    args.add(newId)
                 } else {
                     args.add("--resume")
                     args.add(_cliSessionId.get()!!)
@@ -492,6 +493,7 @@ class CliBackend(
             args.addAll(extras)
             if (!args.contains("-p") && !args.contains("--prompt")) {
                 args.add("-p")
+                args.add(prompt)
             }
             return args
         }
