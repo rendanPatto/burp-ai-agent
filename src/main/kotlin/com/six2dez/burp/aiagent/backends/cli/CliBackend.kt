@@ -474,10 +474,7 @@ class CliBackend(
             val extras = cmd.drop(1)
             val args = mutableListOf<String>()
             args.add(base)
-            args.addAll(extras)
-            if (!args.contains("-p") && !args.contains("--prompt")) {
-                args.add("-p")
-            }
+
             val currentSessionId = _cliSessionId.get()
             if (currentSessionId != null) {
                 args.add("--resume")
@@ -485,12 +482,16 @@ class CliBackend(
             } else {
                 val newId = java.util.UUID.randomUUID().toString()
                 if (_cliSessionId.compareAndSet(null, newId)) {
-                    // iFlow uses --continue for new sessions with session tracking
-                    args.add("--continue")
+                    args.add("-c")
                 } else {
                     args.add("--resume")
                     args.add(_cliSessionId.get()!!)
                 }
+            }
+
+            args.addAll(extras)
+            if (!args.contains("-p") && !args.contains("--prompt")) {
+                args.add("-p")
             }
             return args
         }
