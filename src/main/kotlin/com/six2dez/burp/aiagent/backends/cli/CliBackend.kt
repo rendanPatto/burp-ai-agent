@@ -92,7 +92,12 @@ class CliBackend(
             try {
             executor.submit {
                 val historyText = buildCliHistory(history)
-                val finalText = historyText + text
+                val systemPromptBlock = if (!systemPrompt.isNullOrBlank()) {
+                    "<system>\n$systemPrompt\n</system>\n\n"
+                } else {
+                    ""
+                }
+                val finalText = historyText + systemPromptBlock + text
                 val outputFile = if (backendId == "codex-cli") {
                     java.io.File.createTempFile("burp-ai-agent-codex", ".txt")
                 } else {
@@ -599,7 +604,12 @@ class CliBackend(
             exec.submit {
                 try {
                     val historyText = buildCliHistory(history)
-                    val finalText = historyText + text
+                    val systemPromptBlock = if (!systemPrompt.isNullOrBlank()) {
+                        "<system>\n$systemPrompt\n</system>\n\n"
+                    } else {
+                        ""
+                    }
+                    val finalText = historyText + systemPromptBlock + text
                     // write input
                     writer.write(finalText)
                     writer.newLine()
