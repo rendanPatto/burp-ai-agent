@@ -153,6 +153,14 @@ class CliBackend(
                 val (cmd, stdinText) = buildCommand(promptToSend, outputFile)
                 var process: Process? = null
                 try {
+                    // Debug: write the actual command and prompt to file
+                    if (backendId == "iflow-cli") {
+                        try {
+                            val debugFile = java.io.File("/tmp/burp-ai-agent-iflow-cmd.txt")
+                            debugFile.writeText("=== Command ===\n${cmd.joinToString(" ")}\n\n=== Stdin ===\n${stdinText ?: "null"}\n\n=== Prompt to send ===\n${promptToSend.take(500)}...\n")
+                        } catch (_: Exception) {}
+                    }
+                    
                     val resolvedCmd = resolveCommand(cmd, env)
                     if (resolvedCmd.isEmpty()) {
                         onComplete(IllegalStateException("CLI executable not found for $backendId"))
