@@ -94,9 +94,17 @@ class CliBackend(
                 val historyText = buildCliHistory(history)
                 val systemPromptBlock = if (!systemPrompt.isNullOrBlank()) {
                     if (backendId == "iflow-cli") {
-                        com.six2dez.burp.aiagent.backends.BackendDiagnostics.log(
-                            "[iFlow CLI] System prompt length: ${systemPrompt.length} chars"
-                        )
+                        try {
+                            val debugFile = java.io.File("/tmp/burp-ai-agent-iflow-debug.txt")
+                            debugFile.writeText("=== System Prompt ===\n$systemPrompt\n\n=== End ===")
+                            com.six2dez.burp.aiagent.backends.BackendDiagnostics.log(
+                                "[iFlow CLI] System prompt written to ${debugFile.absolutePath}"
+                            )
+                        } catch (e: Exception) {
+                            com.six2dez.burp.aiagent.backends.BackendDiagnostics.logError(
+                                "[iFlow CLI] Failed to write debug file: ${e.message}"
+                            )
+                        }
                     }
                     "<system>\n$systemPrompt\n</system>\n\n"
                 } else {
