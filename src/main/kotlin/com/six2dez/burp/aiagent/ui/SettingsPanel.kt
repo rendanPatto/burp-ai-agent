@@ -887,6 +887,7 @@ class SettingsPanel(
             openAiCompatibleHeaders = backendState.openAiCompatHeaders,
             openAiCompatibleTimeoutSeconds = openAiCompatTimeoutSeconds,
             copilotCmd = backendState.copilotCmd,
+            iflowCmd = backendState.iflowCmd,
             requestPromptTemplate = promptRequest.text.trim(),
             issuePromptTemplate = promptIssueFull.text.trim(),
             issueAnalyzePrompt = promptIssueAnalyze.text.trim(),
