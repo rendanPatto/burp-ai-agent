@@ -657,9 +657,7 @@ class AgentSupervisor(
             }
             "iflow-cli" -> {
                 val cmd = (settings?.iflowCmd ?: prefs.getString("iflow.cmd") ?: "iflow").trim()
-                val iflowEnv = embeddedCliEnv(baseEnv, embeddedMode) + mapOf(
-                    "IFLOW_coreTools" to ""  // Disable built-in tools
-                )
+                val iflowEnv = embeddedCliEnv(baseEnv, embeddedMode)
                 BackendLaunchConfig(
                     backendId = backendId,
                     displayName = "iFlow CLI",

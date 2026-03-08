@@ -93,6 +93,11 @@ class CliBackend(
             executor.submit {
                 val historyText = buildCliHistory(history)
                 val systemPromptBlock = if (!systemPrompt.isNullOrBlank()) {
+                    if (backendId == "iflow-cli") {
+                        com.six2dez.burp.aiagent.backends.BackendDiagnostics.log(
+                            "[iFlow CLI] System prompt length: ${systemPrompt.length} chars"
+                        )
+                    }
                     "<system>\n$systemPrompt\n</system>\n\n"
                 } else {
                     ""
