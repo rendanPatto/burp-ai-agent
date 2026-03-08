@@ -95,7 +95,8 @@ class SettingsPanel(
             openAiCompatApiKey = settings.openAiCompatibleApiKey,
             openAiCompatHeaders = settings.openAiCompatibleHeaders,
             openAiCompatTimeoutSeconds = settings.openAiCompatibleTimeoutSeconds.toString(),
-            copilotCmd = settings.copilotCmd
+            copilotCmd = settings.copilotCmd,
+            iflowCmd = settings.iflowCmd
         )
     )
     private val profilePicker = JComboBox<String>().apply {
@@ -971,7 +972,8 @@ class SettingsPanel(
                 openAiCompatApiKey = updated.openAiCompatibleApiKey,
                 openAiCompatHeaders = updated.openAiCompatibleHeaders,
                 openAiCompatTimeoutSeconds = updated.openAiCompatibleTimeoutSeconds.toString(),
-                copilotCmd = updated.copilotCmd
+                copilotCmd = updated.copilotCmd,
+                iflowCmd = updated.iflowCmd
             )
         )
         profilePicker.selectedItem = updated.agentProfile
