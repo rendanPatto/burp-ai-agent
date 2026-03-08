@@ -24,12 +24,11 @@ class CliBackend(
     override val displayName: String
 ) : AiBackend {
 
-    /** Avoid spamming "Found X CLI" on every isAvailable() call. */
     private val availabilityLogged = AtomicBoolean(false)
 
     override fun launch(config: BackendLaunchConfig): AgentConnection {
         require(config.command.isNotEmpty()) { "CLI backend requires a command" }
-        val usePty = (id == "codex-cli" || id == "gemini-cli" || id == "claude-cli" || id == "copilot-cli") && !config.embeddedMode
+        val usePty = (id == "codex-cli" || id == "gemini-cli" || id == "claude-cli" || id == "copilot-cli" || id == "iflow-cli") && !config.embeddedMode
         return if (config.embeddedMode) {
             NonInteractiveCliConnection(id, config.command, config.env, config.cliSessionId)
         } else {
@@ -44,6 +43,7 @@ class CliBackend(
             "codex-cli" -> settings.codexCmd
             "opencode-cli" -> settings.opencodeCmd
             "copilot-cli" -> settings.copilotCmd
+            "iflow-cli" -> settings.iflowCmd
             "ollama" -> settings.ollamaCliCmd
             else -> ""
         }
@@ -223,6 +223,7 @@ class CliBackend(
                         "opencode-cli" -> readOpenCodeOutput(stdoutText, text)
                         "claude-cli" -> readClaudeOutput(stdoutText, text)
                         "copilot-cli" -> readCopilotOutput(stdoutText, text)
+                        "iflow-cli" -> readIFlowOutput(stdoutText, text)
                         else -> stdoutText.trim()
                     }
                     if (finalMessage.isNotBlank()) onChunk(finalMessage)
@@ -270,6 +271,10 @@ class CliBackend(
                 }
                 "copilot-cli" -> {
                     val cmd = buildCopilotCommand(baseCommand)
+                    cmd to prompt
+                }
+                "iflow-cli" -> {
+                    val cmd = buildIFlowCommand(baseCommand)
                     cmd to prompt
                 }
                 else -> baseCommand to prompt
@@ -456,6 +461,27 @@ class CliBackend(
         }
 
         private fun readCopilotOutput(stdout: String, prompt: String): String {
+            val inputLines = prompt.lines().map { it.trim() }.filter { it.isNotBlank() }.toSet()
+            return stdout.lineSequence()
+                .map { it.trim() }
+                .filter { it.isNotBlank() && !inputLines.contains(it) }
+                .joinToString("\n")
+                .trim()
+        }
+
+        private fun buildIFlowCommand(cmd: List<String>): List<String> {
+            val base = cmd.firstOrNull() ?: "iflow"
+            val extras = cmd.drop(1)
+            val args = mutableListOf<String>()
+            args.add(base)
+            args.addAll(extras)
+            if (!args.contains("-p") && !args.contains("--prompt")) {
+                args.add("-p")
+            }
+            return args
+        }
+
+        private fun readIFlowOutput(stdout: String, prompt: String): String {
             val inputLines = prompt.lines().map { it.trim() }.filter { it.isNotBlank() }.toSet()
             return stdout.lineSequence()
                 .map { it.trim() }
